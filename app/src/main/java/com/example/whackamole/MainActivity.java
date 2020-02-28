@@ -9,6 +9,7 @@ import android.view.View;
 import androidx.gridlayout.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.content.Intent;
 
 import java.util.Random;
 
@@ -23,6 +24,11 @@ public class MainActivity extends AppCompatActivity {
     public updateCount update;
     public boolean on;
     private TextView pointCounter;
+    private Drawable smithersImage;
+    private Drawable cowImage;
+    private int pic;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +39,10 @@ public class MainActivity extends AppCompatActivity {
         gridLayout = findViewById(R.id.girdLayout);
         //finds the image in the drawable folder
         moleImage = getDrawable(R.drawable.mole);
+        smithersImage = getDrawable(R.drawable.smithers);
+        cowImage = getDrawable(R.drawable.cow);
+        pic= 1;
+
         //the circles
         imageViews = new ImageView[16];
         handler = new Handler();
@@ -53,11 +63,30 @@ public class MainActivity extends AppCompatActivity {
             if (i == moleLocation){
                 //taking the mole image and adding to the view
                 imageViews[i].setImageDrawable(moleImage);
+
             }
             gridLayout.addView(imageViews[i]);
         }
     }
+    public void picButton(View v){
+        //launches second screen color_activity screen
+        //intent-activity pages talk to each other
+        Intent i = new Intent(this,picture_activity.class);
+        //send pic to pic activity
+        i.putExtra("PICTURE", pic);
+        startActivityForResult(i,1);
+    }
+    @Override
+    //sent back by the color activity requesting, resulting of the intent data
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //getting the color, if it doesnt work then background default to pic 1
+        pic = data.getIntExtra("PICTURE", 1);
+        //imageViews[moleLocation].setImageDrawable(moleImage);
+    }
+
+
     public void startPressed(View v){
+
         //if the button is pressed already clicking it again will stop it
         if (on) {
             on = false;
@@ -83,13 +112,22 @@ public class MainActivity extends AppCompatActivity {
     public class updateCount implements Runnable{
 
         public void run(){
+
             int lastLocation;
             //the last place the mole was located
             lastLocation = moleLocation;
             //starts the mole in a random location
             moleLocation = rand.nextInt(16);
             //adds mole images to each circle(imageview) in random locations
-            imageViews[moleLocation].setImageDrawable(moleImage);
+            if (pic == 1) {
+                imageViews[moleLocation].setImageDrawable(moleImage);
+            }
+            else if (pic == 2 ){
+                imageViews[moleLocation].setImageDrawable(smithersImage);
+            }
+            else if (pic == 3){
+                imageViews[moleLocation].setImageDrawable(cowImage);
+            }
             //the last place the mole was it gets deleted, sets location to null
             imageViews[lastLocation].setImageDrawable(null);
             handler.postDelayed(update, 1000);
